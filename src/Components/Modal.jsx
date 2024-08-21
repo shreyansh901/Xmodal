@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Modal = ({ setIsModalOpen, setModalOpenBackground }) => {
+const Modal = ({ setIsModalOpen }) => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -10,14 +10,12 @@ const Modal = ({ setIsModalOpen, setModalOpenBackground }) => {
 
   const handleBackgroundClick = () => {
     setIsModalOpen(false);
-    setModalOpenBackground(false);
-    setFormData((prevData) => ({
-      ...prevData,
+    setFormData({
       username: "",
       email: "",
       phone: "",
       dob: "",
-    }));
+    });
   };
 
   const handleChange = (e) => {
@@ -26,48 +24,56 @@ const Modal = ({ setIsModalOpen, setModalOpenBackground }) => {
     setFormData((prevState) => ({ ...prevState, [key]: value }));
   };
 
-  const validationCheck = () => {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      window.alert(
-        "Invalid email. Your email address should be in the format:- text@text.com"
-      );
-      return;
+  const validateForm = () => {
+    if (!formData.username) {
+      alert("Username is required.");
+      return false;
     }
 
-    if (formData.phone.length < 10) {
-      window.alert(
-        "Invalid phone number. Please enter a 10-digit phone number."
-      );
-      return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      alert("Invalid email. Please check your email address.");
+      return false;
+    }
+
+    if (formData.phone.length !== 10 || !/^\d+$/.test(formData.phone)) {
+      alert("Invalid phone number. Please enter a 10-digit phone number.");
+      return false;
     }
 
     const inputDate = new Date(formData.dob);
     const currentDate = new Date();
     if (currentDate < inputDate) {
-      window.alert(
-        "Invalid date of birth. Date of birth cannot be in the future."
-      );
-      return;
+      alert("Invalid date of birth. Date of birth cannot be in the future.");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (validateForm()) {
+      alert("Form submitted successfully!");
+
+      // Close the modal and reset the form
+      handleBackgroundClick();
     }
   };
 
   return (
-    <div className="modalBackground" onClick={handleBackgroundClick}>
-      <div
-        className="modalContainer"
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-      >
-        <div className="modalHeader">
+    <div className="modal" onClick={handleBackgroundClick}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
           <h1>Fill Details</h1>
         </div>
-        <div className="modalBody">
-          <form onSubmit={validationCheck}>
+        <div className="modal-body">
+          <form onSubmit={handleSubmit}>
             <label htmlFor="username">
               <h3>Username:</h3>
             </label>
             <input
+              id="username"
               type="text"
               name="username"
               value={formData.username}
@@ -79,6 +85,7 @@ const Modal = ({ setIsModalOpen, setModalOpenBackground }) => {
               <h3>Email Address:</h3>
             </label>
             <input
+              id="email"
               type="text"
               name="email"
               value={formData.email}
@@ -90,6 +97,7 @@ const Modal = ({ setIsModalOpen, setModalOpenBackground }) => {
               <h3>Phone Number:</h3>
             </label>
             <input
+              id="phone"
               type="text"
               name="phone"
               value={formData.phone}
@@ -101,7 +109,8 @@ const Modal = ({ setIsModalOpen, setModalOpenBackground }) => {
               <h3>Date of Birth:</h3>
             </label>
             <input
-              type="Date"
+              id="dob"
+              type="date"
               name="dob"
               value={formData.dob}
               onChange={handleChange}
@@ -109,7 +118,7 @@ const Modal = ({ setIsModalOpen, setModalOpenBackground }) => {
             />
             <br />
 
-            <button type="submit" className="submit">
+            <button type="submit" className="submit-button">
               Submit
             </button>
           </form>
